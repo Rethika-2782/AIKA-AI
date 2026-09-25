@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    color: #151515;
+    background: radial-gradient(circle at top left, #FFFFFF, #F7F4EE);
+    min-height: 100vh;
+  }
+  
+  body {
+    margin: 0;
+    min-width: 320px;
+    background-color: transparent;
+    color: #151515;
+  }
+  
+  * { box-sizing: border-box; }
+  button, input, textarea, select { font: inherit; color: #151515; }
+  ::selection { background: #B99A5B; color: #151515; }
+}
+
+@layer components {
+  .card { 
+    @apply rounded-3xl border border-black/5 bg-white/60 shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-black/10 hover:bg-white/80 hover:shadow-2xl text-gray-900;
+  }
+  
+  .btn-primary { 
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-ink px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:bg-wine disabled:cursor-not-allowed disabled:opacity-50; 
+  }
+  
+  .btn-secondary { 
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/50 px-6 py-3 text-sm font-semibold text-ink shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-black/20 hover:bg-white; 
+  }
+  
+  .input { 
+    @apply w-full rounded-xl border border-black/10 bg-white/70 px-4 py-3 outline-none text-ink backdrop-blur-sm transition-all duration-300 focus:border-wine focus:ring-2 focus:ring-wine/20 focus:bg-white placeholder:text-gray-500; 
+  }
+  
+  .glass-panel {
+    @apply border border-black/5 bg-white/40 backdrop-blur-2xl shadow-xl rounded-3xl;
+  }
+}
+
+
