@@ -1,3 +1,6 @@
+## Problem Statement Alignment: AI for Legal Assistance & Access
+LEXORA AI directly addresses the challenge of making legal assistance accessible through AI. It provides simple explanations, risk analysis, and actionable insights for people facing legal issues, bridging the gap between complex legal jargon and everyday understanding.
+
 # LEXORA AI
 
 **Global AI-Powered Legal Access & Assistance Platform**

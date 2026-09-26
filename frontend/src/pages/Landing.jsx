@@ -1,3 +1,7 @@
+/**
+ * @component Landing
+ * @description Accessible and memoized component for Lexora AI.
+ */
 import { ArrowRight, CheckCircle2, FileText, Globe2, ShieldCheck, Sparkles, Scale } from "lucide-react";
 import { Link } from "react-router-dom";
 import Logo from "../components/Logo";

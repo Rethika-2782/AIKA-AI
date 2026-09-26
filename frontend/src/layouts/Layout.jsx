@@ -15,7 +15,7 @@ export default function Layout({ user, onLogout, children }) {
   const nav = (to) => { setOpen(false); navigate(to); };
   return <div className="min-h-screen bg-transparent text-gray-900">
     <header className="sticky top-0 z-40 border-b border-black/10 bg-white/60 backdrop-blur-md lg:hidden">
-      <div className="flex items-center justify-between px-5 py-4"><Logo/><button className="text-ink" onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button></div>
+      <div className="flex items-center justify-between px-5 py-4"><Logo/><button aria-label="Toggle menu" className="text-ink" onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button></div>
     </header>
     <div className="flex min-h-screen">
       <aside className={`fixed z-50 h-full w-72 border-r border-black/10 bg-white/40 backdrop-blur-xl p-6 text-ink transition-transform lg:sticky lg:top-0 lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
