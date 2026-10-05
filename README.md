@@ -1,558 +1,948 @@
 # ĀIKĀ AI
 
-**Quietly intelligent legal clarity for everyday legal questions.**
+### Quietly intelligent legal clarity for everyday legal questions.
 
-> Understand the law. Know your options. Take the next step.
+> **Understand the law. Know your options. Take the next step.**
 
-ĀIKĀ AI (AIKA AI) is a complete, working **MERN-stack** application — MongoDB, Express.js, React, Node.js — that helps people organize legal situations, understand them in plain language, manage evidence, prepare questions for a professional, and generate editable document drafts. It is **not a substitute for a qualified legal professional**, and it never invents laws, statutes, or citations.
+ĀIKĀ AI is a full-stack **MERN application** designed to help users understand and organize everyday legal situations in simple language.
 
-- **Frontend:** React 18 + Vite + Tailwind CSS + Framer Motion + Lucide icons + React Router + Axios
-- **Backend:** Node.js + Express + Mongoose + JWT + bcrypt + helmet + cors + dotenv
-- **Database:** MongoDB (`mongodb://127.0.0.1:27017/aika_ai` locally, or Atlas via `MONGODB_URI`)
-- **AI:** 100% inbuilt rule-based engine (`backend/src/services/aikaEngine.js`, provider `aika-engine`) — **no external AI provider, no third-party API key**
+The platform allows users to describe a legal situation, identify key issues and possible risks, organize supporting evidence, prepare questions for a qualified professional, simplify legal text, and generate editable document drafts.
 
----
-
-## Table of Contents
-
-1. [Project Status](#project-status)
-2. [Problem Statement](#problem-statement)
-3. [Solution](#solution)
-4. [Features](#features)
-5. [Technology Stack](#technology-stack)
-6. [Architecture](#architecture)
-7. [Project Structure](#project-structure)
-8. [Database Design](#database-design)
-9. [Environment Variables](#environment-variables)
-10. [Installation & Running](#installation--running)
-11. [Demo Account](#demo-account)
-12. [Frontend Routes & Pages](#frontend-routes--pages)
-13. [API Reference](#api-reference)
-14. [AI Workflow & Engine](#ai-workflow--engine)
-15. [Responsible AI](#responsible-ai)
-16. [Security](#security)
-17. [Verification & Testing](#verification--testing)
-18. [Documentation & Deliverables](#documentation--deliverables)
-19. [Limitations](#limitations)
-20. [Future Enhancements](#future-enhancements)
+**ĀIKĀ AI provides general legal information and organizational assistance. It is not a substitute for advice from a qualified legal professional.**
 
 ---
 
-## Project Status
+## ✨ Features
 
-Everything below is **implemented and verified end-to-end** against a running MongoDB + backend + frontend — not a mock-up.
+### 🔐 Authentication & Security
 
-| Area | Status |
-|---|---|
-| Backend (6 route groups, 5 controllers + dashboard stats route, 6 models, middleware, health check) | ✅ Complete |
-| Frontend (10 pages, protected routing, Axios client, auth context) | ✅ Complete |
-| JWT registration/login with real personal email addresses | ✅ Complete + tested |
-| Inbuilt AI engine (analysis, explain, simplify, draft generation) | ✅ Complete + tested |
-| Case / evidence / document CRUD with ownership checks | ✅ Complete + tested |
-| Dashboard with live database statistics | ✅ Complete + tested |
-| Full API journey (happy path, validation, 401, 403, 404, cross-user isolation) | ✅ Tested |
-| `npm run build` (production bundle) | ✅ Passes |
-| Branding (Lexora → ĀIKĀ AI), Gemini fully removed | ✅ Complete |
-| Report draft `document.md` (title page, bonafide, acknowledgement, abstract, TOC) | 🟡 Chapters pending |
-| Report screenshots (`docs/screenshots/`) | 🟡 4 of ~9 captured |
+* User registration and login
+* Email format validation
+* Secure password hashing using **bcrypt**
+* JWT-based authentication
+* Protected routes
+* Session persistence
+* Duplicate email prevention
+* Login brute-force protection
+* User-specific data ownership
+* Centralized error handling
+* Helmet security headers
+* CORS protection
+
+### 📁 Case Management
+
+Users can create and manage legal cases with:
+
+* Case title
+* Situation description
+* Jurisdiction
+* Category
+* Case status
+* AI-generated analysis
+
+Supported case statuses:
+
+* `Active`
+* `Pending`
+* `Closed`
+
+Cases can also be searched and filtered by title, status, and category.
+
+### 📎 Evidence Management
+
+Users can organize evidence associated with their cases.
+
+Supported evidence types include:
+
+* Rental Agreement
+* Payment Receipt
+* Email Conversation
+* Legal Notice
+* Photograph
+* Other
+
+Evidence status can be:
+
+* `Collected`
+* `Pending`
+* `Missing`
+
+### 🤖 AI Legal Assistance
+
+ĀIKĀ AI provides several built-in assistance tools:
+
+#### AI Analyzer
+
+Converts a plain-language legal situation into:
+
+* Summary
+* Key Issues
+* Possible Risks
+* ActionPath
+* Questions for a Professional
+* Missing Information
+* Legal category
+* Jurisdiction
+
+#### Legal Simplifier
+
+Converts complicated legal clauses, notices, or contract sections into easier-to-understand language.
+
+#### Draft Studio
+
+Generates editable document drafts based on a case and user instructions.
+
+Supported draft types:
+
+* Complaint Draft
+* Request Letter
+* Response Letter
+* Evidence Checklist
+* Professional Consultation Summary
+
+#### AI History
+
+Previous AI interactions are stored and can be reviewed by the user.
 
 ---
 
-## Problem Statement
+## 🧠 Built-in AI Engine
 
-Legal information is complex, expensive, and inaccessible to most people. When something goes wrong — a withheld security deposit, an unfair employer, a consumer dispute — the average person does not know *what the issue is called*, *what the risks are*, *what to do first*, or *what to ask a lawyer*.
+ĀIKĀ AI currently uses an **inbuilt deterministic rule-based engine** located at:
 
-## Solution
+```text
+backend/src/services/aikaEngine.js
+```
 
-ĀIKĀ AI turns a plain-language description of a situation into a **structured understanding**:
+There is **no Gemini API, OpenAI API, or external AI provider** required.
 
-- a plain-English **summary**
-- the **key issues** involved
-- **possible risks**
-- an ordered **ActionPath** of practical next steps
-- **questions to ask** a qualified professional
-- **missing information** the user should gather
+The engine classifies situations using keyword-based themes:
 
-…plus tools to simplify legal clauses, manage evidence, and draft documents — all behind a REST API with JWT authentication, and all produced by an **inbuilt, deterministic engine** so the app is fully self-contained and demonstrable offline.
+* Housing
+* Employment
+* Family
+* Consumer
+* Civil
+* General
+
+The selected category is then used to generate structured legal-information templates containing issues, risks, action steps, professional questions, and missing information.
+
+### AI Processing Flow
+
+```text
+User Situation
+      │
+      ▼
+React Frontend
+      │
+      ▼
+Express REST API
+      │
+      ▼
+ĀIKĀ AI Engine
+      │
+      ├── Classification
+      ├── Risk Identification
+      ├── ActionPath Generation
+      ├── Professional Questions
+      └── Missing Information
+      │
+      ▼
+Structured JSON Response
+      │
+      ├── Case Analysis
+      ├── AI History
+      └── Consultation Questions
+      │
+      ▼
+React UI
+```
+
+The engine produces structured output rather than unrestricted free-form responses and is designed not to fabricate statutes, cases, or legal citations.
 
 ---
 
-## Features
+# 🛠️ Technology Stack
 
-### Authentication & account security
-- Register with **your own email address and password** (any real mailbox — Gmail, Outlook, college ID, etc.)
-- Email format validation (server + client), lowercase/trim normalization so one mailbox = one account
-- Duplicate-email rejection (`409`), password minimum length, **confirm-password** field on sign-up
-- bcrypt-hashed passwords (cost 10), JWT sessions (7-day expiry) stored in `localStorage`
-- Login brute-force guard: **8 failed attempts per email+IP in 15 minutes → HTTP 429**
-- Generic "Invalid email or password" message (no account enumeration)
-- Auto-login on registration, session restore on reload, protected routes redirect to `/login`
+| Layer             | Technology                     |
+| ----------------- | ------------------------------ |
+| Frontend          | React 18.3                     |
+| Build Tool        | Vite 6                         |
+| Styling           | Tailwind CSS 3.4               |
+| Animations        | Framer Motion 11               |
+| Icons             | Lucide React                   |
+| Routing           | React Router 7                 |
+| HTTP Client       | Axios                          |
+| Backend           | Node.js 24                     |
+| API Framework     | Express.js 4.21                |
+| ODM               | Mongoose 8.6                   |
+| Database          | MongoDB                        |
+| Authentication    | JWT                            |
+| Password Security | bcrypt                         |
+| Security          | Helmet, CORS                   |
+| Configuration     | dotenv                         |
+| AI                | Inbuilt ĀIKĀ rule-based engine |
+
+The current project uses MongoDB locally or MongoDB Atlas through the `MONGODB_URI` environment variable.
+
+---
+
+# 🏗️ System Architecture
+
+```text
+┌──────────────────────────────────────────────────────┐
+│                    USER / BROWSER                    │
+│                                                      │
+│       React + Vite + Tailwind CSS + Framer Motion   │
+└───────────────────────┬──────────────────────────────┘
+                        │
+                        │ Axios + JWT
+                        ▼
+┌──────────────────────────────────────────────────────┐
+│                  EXPRESS REST API                    │
+│                                                      │
+│  Authentication │ Cases │ Evidence │ Documents      │
+│  AI Operations  │ Dashboard │ Health                │
+└──────────────┬───────────────────────┬───────────────┘
+               │                       │
+               ▼                       ▼
+┌────────────────────────┐   ┌─────────────────────────┐
+│       MongoDB          │   │    ĀIKĀ AI ENGINE       │
+│                        │   │                         │
+│ Users                  │   │ Keyword Classification │
+│ Cases                  │   │ Risk Analysis          │
+│ Evidence               │   │ ActionPath             │
+│ Documents              │   │ Legal Simplification   │
+│ Consultations          │   │ Document Generation    │
+│ AI Interactions        │   │                         │
+└────────────────────────┘   └─────────────────────────┘
+```
+
+### Request Lifecycle
+
+```text
+React
+  ↓
+Axios
+  ↓
+Express Route
+  ↓
+JWT Authentication
+  ↓
+Controller
+  ↓
+Mongoose / MongoDB
+  ↓
+ĀIKĀ AI Engine (AI routes)
+  ↓
+Structured Response
+  ↓
+React UI
+```
+
+---
+
+# 📂 Project Structure
+
+```text
+aika-ai/
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Logo.jsx
+│   │   │   ├── StatCard.jsx
+│   │   │   └── LoadingAI.jsx
+│   │   │
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   │
+│   │   ├── layouts/
+│   │   │   └── Layout.jsx
+│   │   │
+│   │   ├── pages/
+│   │   │   ├── Landing.jsx
+│   │   │   ├── Auth.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Cases.jsx
+│   │   │   ├── CasePage.jsx
+│   │   │   ├── AIAnalyzer.jsx
+│   │   │   ├── Simplifier.jsx
+│   │   │   ├── DraftStudio.jsx
+│   │   │   ├── Documents.jsx
+│   │   │   └── Profile.jsx
+│   │   │
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   │
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
+│   │
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   └── .env.example
+│
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   │   └── db.js
+│   │   │
+│   │   ├── controllers/
+│   │   │   ├── authController.js
+│   │   │   ├── caseController.js
+│   │   │   ├── evidenceController.js
+│   │   │   ├── documentController.js
+│   │   │   └── aiController.js
+│   │   │
+│   │   ├── middleware/
+│   │   │   ├── authMiddleware.js
+│   │   │   └── errorMiddleware.js
+│   │   │
+│   │   ├── models/
+│   │   │   ├── User.js
+│   │   │   ├── Case.js
+│   │   │   ├── EvidenceItem.js
+│   │   │   ├── Document.js
+│   │   │   ├── Consultation.js
+│   │   │   └── AIInteraction.js
+│   │   │
+│   │   ├── routes/
+│   │   │   ├── authRoutes.js
+│   │   │   ├── caseRoutes.js
+│   │   │   ├── evidenceRoutes.js
+│   │   │   ├── documentRoutes.js
+│   │   │   ├── aiRoutes.js
+│   │   │   └── dashboardRoutes.js
+│   │   │
+│   │   ├── services/
+│   │   │   ├── aikaEngine.js
+│   │   │   └── documentService.js
+│   │   │
+│   │   └── server.js
+│   │
+│   ├── package.json
+│   └── .env.example
+│
+├── docs/
+│   └── screenshots/
+│
+├── .gitignore
+├── README.md
+└── document.md
+```
+
+---
+
+# 🗄️ Database Design
+
+Database name:
+
+```text
+aika_ai
+```
+
+The application uses six primary MongoDB collections.
+
+### Users
+
+Stores user account information.
+
+```text
+User
+├── name
+├── email
+├── password
+├── jurisdiction
+├── createdAt
+└── updatedAt
+```
 
 ### Cases
-- Create, view, edit, delete cases (title, description, jurisdiction, category, status)
-- Search by title (case-insensitive regex) and filter by status/category
-- Statuses: `active`, `pending`, `closed`
-- Each case stores its AI analysis, risks, action path, and professional questions
 
-### Evidence
-- Per-case evidence items: name, description, type, status
-- Types: Rental Agreement, Payment Receipt, Email Conversation, Legal Notice, Photograph, Other
-- Statuses: `collected`, `pending`, `missing` — readiness tracking at a glance
+Stores legal case information.
+
+```text
+Case
+├── user
+├── title
+├── description
+├── jurisdiction
+├── category
+├── status
+├── aiAnalysis
+├── risks
+├── actionPath
+└── questions
+```
+
+### EvidenceItems
+
+Stores evidence related to cases.
+
+```text
+EvidenceItem
+├── user
+├── case
+├── name
+├── description
+├── type
+├── status
+├── createdAt
+└── updatedAt
+```
 
 ### Documents
-- Five AI-generated draft types: **Complaint Draft, Request Letter, Response Letter, Evidence Checklist, Professional Consultation Summary**
-- Editable in-browser, saved to MongoDB, downloadable as `.txt`, deletable
-- Every draft stamped `DRAFT — review with a qualified professional`
 
-### AI tools
-- **AI Analyzer** — situation → structured analysis (summary / issues / risks / action path / questions / missing info)
-- **Legal Simplifier** — paste a clause, notice, or contract section → plain-language breakdown
-- **Draft Studio** — generate tailored drafts from a case + instructions
-- **AI History** — every interaction persisted to MongoDB and re-viewable
-
-### Dashboard & profile
-- Live counts: total cases, active cases, documents, evidence items, AI interactions
-- Recent cases and recent AI activity straight from the database
-- Profile shows name, email, jurisdiction, member-since date, logout
-
-### UX
-- Responsive layout (mobile hamburger + desktop sidebar), keyboard navigable, ARIA labels on all controls
-- Playfair Display display type, ivory/wine palette, Framer Motion transitions
-- Loading states, inline error alerts, empty states on every page
-
----
-
-## Technology Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React 18.3, Vite 6, Tailwind CSS 3.4, Framer Motion 11, Lucide React, React Router 7, Axios |
-| Backend | Node.js 24, Express 4.21, Mongoose 8.6, JSONWebToken 9, bcrypt 6, helmet 7, cors 2.8, dotenv 17 |
-| Database | MongoDB (Community locally / Atlas via env) |
-| AI | Inbuilt rule-based engine — **no Gemini, no OpenAI, no external API keys** |
-| Tooling | nodemon (dev), PostCSS + Autoprefixer, ESLint-free minimal config |
-
----
-
-## Architecture
+Stores generated and editable document drafts.
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│  Browser — React + Vite + Tailwind + Framer Motion          │
-│  Public: /  /login  /register                              │
-│  Protected: /dashboard /cases /cases/:id /ai /simplifier    │
-│             /drafts /documents /profile                     │
-└───────────────────────┬─────────────────────────────────────┘
-                        │  Axios + JWT (Authorization: Bearer …)
-                        ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Express API  (helmet · CORS allowlist · 1mb JSON limit)    │
-│                                                             │
-│  /api/auth      register · login · me      (bcrypt + JWT)   │
-│  /api/cases     CRUD + search/filter    ┐                   │
-│  /api/evidence  CRUD + caseId filter    ├ protect middleware│
-│  /api/documents CRUD + caseId filter    │  + ownership check│
-│  /api/ai        analyze · explain · simplify · generate     │
-│                 · history                 ┘                   │
-│  /api/dashboard stats                                      │
-│  /api/health     liveness + DB state                       │
-└───────────┬─────────────────────────────┬───────────────────┘
-            │                             │
-            ▼                             ▼
-┌───────────────────────┐   ┌─────────────────────────────────┐
-│  MongoDB  (aika_ai)   │   │  Inbuilt AIKA Engine            │
-│  users                │   │  keyword scoring → theme        │
-│  cases                │   │  (Housing/Employment/Family/    │
-│  evidenceitems        │   │   Consumer/Civil/General)       │
-│  documents            │   │  → structured JSON templates    │
-│  consultations        │   │  → jurisdiction-aware output    │
-│  aiinteractions       │   └─────────────────────────────────┘
-└───────────────────────┘
+Document
+├── user
+├── case
+├── title
+├── type
+├── content
+├── createdAt
+└── updatedAt
 ```
 
-**Request lifecycle:** React → Axios → Express route → `protect` (JWT → `req.user`) → controller → Mongoose/MongoDB → (for AI routes) inbuilt engine → structured JSON → persisted `AIInteraction` → response → React state.
+### Consultations
+
+Stores questions and notes prepared for professional consultation.
+
+```text
+Consultation
+├── user
+├── case
+├── questions
+├── notes
+├── createdAt
+└── updatedAt
+```
+
+### AIInteractions
+
+Stores previous AI operations.
+
+```text
+AIInteraction
+├── user
+├── case
+├── type
+├── input
+├── output
+├── createdAt
+└── updatedAt
+```
+
+The database design and ownership relationships are implemented through Mongoose models and indexed user references.
 
 ---
 
-## Project Structure
+# ⚙️ Installation
 
-```text
-lexora-ai/
-├── frontend/
-│   ├── index.html                 # ĀIKĀ AI title + meta
-│   ├── package.json               # aika-ai-frontend
-│   ├── vite.config.js             # dev server (port 5173)
-│   ├── tailwind.config.js         # ivory/wine palette, Playfair Display
-│   ├── postcss.config.js
-│   ├── vercel.json                # SPA deploy config
-│   ├── .env.example               # VITE_API_URL
-│   └── src/
-│       ├── main.jsx               # React root + BrowserRouter
-│       ├── App.jsx                # route table + Protected wrapper
-│       ├── index.css              # base styles, .card/.btn/.input utilities
-│       ├── components/
-│       │   ├── Logo.jsx           # ĀIKĀ AI wordmark
-│       │   ├── StatCard.jsx       # dashboard metric card
-│       │   └── LoadingAI.jsx      # AI working indicator
-│       ├── layouts/
-│       │   └── Layout.jsx         # sidebar/hamburger shell + nav
-│       ├── context/
-│       │   └── AuthContext.jsx    # user state, login/register/logout, JWT
-│       ├── services/
-│       │   └── api.js             # Axios instance + every API call
-│       └── pages/
-│           ├── Landing.jsx        # public marketing page
-│           ├── Auth.jsx           # sign-in / create-account tabs
-│           ├── Dashboard.jsx      # live stats + recent activity
-│           ├── Cases.jsx          # list, search, filter, create
-│           ├── CasePage.jsx       # case detail: evidence, docs, history
-│           ├── AIAnalyzer.jsx     # situation analysis
-│           ├── Simplifier.jsx     # clause → plain language
-│           ├── DraftStudio.jsx    # draft generation + editing
-│           ├── Documents.jsx      # saved documents list
-│           └── Profile.jsx        # account info + logout
-├── backend/
-│   ├── package.json               # aika-backend (start/dev scripts)
-│   ├── .env.example               # PORT, MONGODB_URI, JWT_SECRET, CLIENT_URL
-│   └── src/
-│       ├── server.js              # app wiring, CORS, health, demo seed
-│       ├── config/db.js           # mongoose connect (+ local fallback URI)
-│       ├── middleware/
-│       │   ├── authMiddleware.js  # protect → verifies JWT, loads user
-│       │   └── errorMiddleware.js # 404 + centralized error handler
-│       ├── models/                # User, Case, EvidenceItem, Document,
-│       │                          # Consultation, AIInteraction
-│       ├── controllers/
-│       │   ├── authController.js  # register/login/me + rate limiting
-│       │   ├── caseController.js  # CRUD + search/filter
-│       │   ├── evidenceController.js
-│       │   ├── documentController.js
-│       │   └── aiController.js    # analyze/explain/simplify/generate/history
-│       ├── routes/                # auth, cases, evidence, documents, ai, dashboard
-│       │                          # (dashboardRoutes.js holds the stats query inline)
-│       └── services/
-│           ├── aikaEngine.js      # ★ inbuilt AI engine
-│           └── documentService.js # draft wrapper over the engine
-├── docs/
-│   └── screenshots/               # report screenshots (PNG)
-├── document.md                    # lab report (college format)
-├── Lexora_AI.mp4                  # demo video
-├── MERN STACK LAB REPORT.docx     # college report template
-├── .gitignore                     # ignores .env, node_modules, dist, logs
-└── README.md                      # this file
+## Prerequisites
+
+Make sure the following are installed:
+
+* Node.js
+* npm
+* MongoDB Community Server or MongoDB Atlas
+* Git
+
+Check your Node.js and npm versions:
+
+```bash
+node --version
+npm --version
 ```
 
 ---
 
-## Database Design
+# 📥 Clone the Repository
 
-Database: **`aika_ai`** — six collections, all created automatically on first write.
-
-### `users`
-| Field | Type | Notes |
-|---|---|---|
-| name | String | required, trimmed |
-| email | String | required, **unique**, lowercase, trimmed |
-| password | String | bcrypt hash (cost 10), never returned |
-| jurisdiction | String | default `India` |
-| createdAt / updatedAt | Date | timestamps |
-
-### `cases`
-| Field | Type | Notes |
-|---|---|---|
-| user | ObjectId → users | required, indexed — ownership |
-| title | String | required, indexed, searchable |
-| description | String | plain-language situation |
-| jurisdiction | String | default `India` |
-| category | String | e.g. Housing, Employment, Consumer |
-| status | Enum | `active` / `pending` / `closed` |
-| aiAnalysis | Mixed | last analysis payload |
-| risks, actionPath, questions | [Mixed]/[String] | structured AI output |
-
-### `evidenceitems`
-`user`, `case` (→ cases, optional), `name` (required), `description`, `type` (enum of 6), `status` (`collected`/`pending`/`missing`), timestamps.
-
-### `documents`
-`user`, `case` (optional), `title` (required), `type` (draft type), `content` (editable text), timestamps.
-
-### `consultations`
-`user`, `case`, `questions: [String]`, `notes`, timestamps — created automatically when an analysis is run on a case.
-
-### `aiinteractions`
-`user`, `case` (optional), `type` (enum: `analysis`, `explanation`, `document`, `simplification`), `input` (truncated to 5000 chars), `output` (Mixed), timestamps — powers the AI history view.
-
-**Indexes:** `email` (unique), `cases.user`, `cases.title`, `evidenceitems.user/case`, `documents.user/case`, `aiinteractions.user`.
+```bash
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd aika-ai
+```
 
 ---
 
-## Environment Variables
+# 📦 Install Dependencies
 
-`backend/.env` (copy from `backend/.env.example`) — **never committed; `.gitignore` blocks it**:
+### Backend
+
+```bash
+cd backend
+npm install
+```
+
+### Frontend
+
+```bash
+cd ../frontend
+npm install
+```
+
+---
+
+# 🔑 Environment Variables
+
+## Backend
+
+Create:
+
+```text
+backend/.env
+```
+
+Add:
 
 ```env
 PORT=5000
 MONGODB_URI=mongodb://127.0.0.1:27017/aika_ai
-JWT_SECRET=replace_with_a_long_random_secret
+JWT_SECRET=your_long_random_secret
 CLIENT_URL=http://localhost:5173
 ```
 
-`frontend/.env` (optional, from `frontend/.env.example`):
+For MongoDB Atlas, replace `MONGODB_URI` with your Atlas connection string.
+
+## Frontend
+
+Create:
+
+```text
+frontend/.env
+```
+
+Add:
 
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
-> There is **no AI API key** anywhere in the project — the engine is inbuilt.
+> **Important:** Never commit `.env` files or private secrets to GitHub.
+
+The project does not require an AI API key because the AI functionality is provided by the built-in ĀIKĀ engine.
 
 ---
 
-## Installation & Running
+# ▶️ Running the Application
+
+Open two terminals.
+
+## Terminal 1 — Backend
 
 ```bash
-# 1. install dependencies
-cd backend  && npm install
-cd ../frontend && npm install
-
-# 2. terminal 1 — backend (port 5000)
 cd backend
-npm start          # or: npm run dev  (nodemon)
+npm start
+```
 
-# 3. terminal 2 — frontend (port 5173)
+For development:
+
+```bash
+npm run dev
+```
+
+Backend:
+
+```text
+http://localhost:5000
+```
+
+## Terminal 2 — Frontend
+
+```bash
 cd frontend
 npm run dev
 ```
 
-Then open **http://localhost:5173**.
+Frontend:
 
-- Health check: `http://localhost:5000/api/health` → `{"success":true,"message":"AIKA AI backend is running","database":"connected"}`
-- If port 5173 is already in use by another project, run `npm run dev -- --port 5174` — the backend CORS allowlist already includes **5173 and 5174**.
-- Requires a running MongoDB (local `mongod` on 27017, or set `MONGODB_URI` to Atlas).
+```text
+http://localhost:5173
+```
+
+Open the application in your browser:
+
+```text
+http://localhost:5173
+```
+
+The backend health endpoint is:
+
+```text
+http://localhost:5000/api/health
+```
+
+The application requires MongoDB to be running locally or a valid MongoDB Atlas connection.
 
 ---
 
-## Demo Account
+# 👤 Demo Account
 
-On first start (when `NODE_ENV !== "production"`) the backend seeds:
+For development mode, a demo account is available:
 
 ```text
 Email:    demo@aika.ai
 Password: AikaDemo@123
 ```
 
-This is shown as a hint box on the login page. **Any user can also create their own account** with their real email via the *Create account* tab (name, email, password, confirm password, jurisdiction).
+Users can also create their own account through the registration page.
+
+> **Security Note:** Do not use the demo credentials in a production deployment.
 
 ---
 
-## Frontend Routes & Pages
+# 🧭 Application Routes
 
-| Route | Access | Page | What it does |
-|---|---|---|---|
-| `/` | public | Landing | Hero, feature overview, sign-in CTA |
-| `/login` | public | Auth (sign in) | email + password → JWT |
-| `/register` | public | Auth (create account) | name, email, password, confirm, jurisdiction |
-| `/dashboard` | protected | Dashboard | live stats, recent cases, recent AI activity |
-| `/cases` | protected | Cases | list, search, status/category filter, create |
-| `/cases/:id` | protected | CasePage | detail, AI analysis, evidence, documents, history |
-| `/ai` | protected | AI Analyzer | situation → structured analysis |
-| `/simplifier` | protected | Legal Simplifier | clause → plain language |
-| `/drafts` | protected | Draft Studio | generate + edit drafts |
-| `/documents` | protected | Documents | saved docs: edit, download, delete |
-| `/profile` | protected | Profile | account info + logout |
-| `*` | — | redirect | falls back to `/` |
-
----
-
-## API Reference
-
-All endpoints are prefixed with `/api`. **🔒 = requires `Authorization: Bearer <token>`** (from login/register). Errors always return `{ "success": false, "message": "..." }`.
-
-### Health
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| GET | `/health` | — | service + database status |
-
-### Auth
-| Method | Path | Auth | Body | Notes |
-|---|---|---|---|---|
-| POST | `/auth/register` | — | `name, email, password, jurisdiction` | `201` + token; validates email format; `409` duplicate; `400` weak password |
-| POST | `/auth/login` | — | `email, password` | `200` + token; `401` bad creds; `429` after 8 failures/15 min |
-| GET | `/auth/me` | 🔒 | — | current user profile (no password) |
-
-### Cases
-| Method | Path | Auth | Notes |
-|---|---|---|---|
-| GET | `/cases?status=&category=&search=` | 🔒 | own cases only, sorted by `updatedAt` desc |
-| POST | `/cases` | 🔒 | `title` required → `201` |
-| GET | `/cases/:id` | 🔒 | `404` if not found or owned by another user |
-| PUT | `/cases/:id` | 🔒 | whitelisted fields only |
-| DELETE | `/cases/:id` | 🔒 | ownership enforced |
-
-### Evidence
-| Method | Path | Auth | Notes |
-|---|---|---|---|
-| GET | `/evidence?caseId=` | 🔒 | list (optionally per case) |
-| POST | `/evidence` | 🔒 | `name` required, `type`, `status`, `caseId` |
-| PUT | `/evidence/:id` | 🔒 | ownership enforced |
-| DELETE | `/evidence/:id` | 🔒 | ownership enforced |
-
-### Documents
-| Method | Path | Auth | Notes |
-|---|---|---|---|
-| GET | `/documents?caseId=` | 🔒 | list (optionally per case) |
-| POST | `/documents` | 🔒 | `title`, `type`, `content`, optional `caseId` |
-| PUT | `/documents/:id` | 🔒 | edit content/title — ownership enforced |
-| DELETE | `/documents/:id` | 🔒 | ownership enforced |
-
-### AI
-| Method | Path | Auth | Body | Returns |
-|---|---|---|---|---|
-| POST | `/ai/analyze` | 🔒 | `situation` (≥10 chars), `jurisdiction?`, `caseId?` | `analysis` + `provider: "aika-engine"`; writes to case + `consultations` + `aiinteractions` |
-| POST | `/ai/explain` | 🔒 | `text` (≥10 chars), `caseId?` | `explanation` + `provider: "aika-engine"` |
-| POST | `/ai/simplify` | 🔒 | `text` (≥10 chars), `caseId?` | `simplification` + `provider: "aika-engine"` |
-| POST | `/ai/generate-document` | 🔒 | `type` (required), `instructions?`, `caseId?` | draft `document` (case details pulled from the case doc; `DRAFT — …` stamped) |
-| GET | `/ai/history?type=&caseId=` | 🔒 | — | last 50 interactions for this user (newest first) |
-
-### Dashboard
-| Method | Path | Auth | Returns |
-|---|---|---|---|
-| GET | `/dashboard/stats` | 🔒 | `stats` (totalCases, activeCases, documents, evidence, interactions), `recentCases`, `recentActivity` |
-
-**Example:**
-
-```bash
-TOKEN=$(curl -s -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"demo@aika.ai","password":"AikaDemo@123"}' | jq -r .token)
-
-curl -s -X POST http://localhost:5000/api/ai/analyze \
-  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
-  -d '{"situation":"My landlord has not returned my security deposit after I moved out.","jurisdiction":"India"}'
-```
+| Route         | Access    | Description              |
+| ------------- | --------- | ------------------------ |
+| `/`           | Public    | Landing page             |
+| `/login`      | Public    | User login               |
+| `/register`   | Public    | Account registration     |
+| `/dashboard`  | Protected | Dashboard and statistics |
+| `/cases`      | Protected | Case management          |
+| `/cases/:id`  | Protected | Case details             |
+| `/ai`         | Protected | AI Analyzer              |
+| `/simplifier` | Protected | Legal Simplifier         |
+| `/drafts`     | Protected | Draft Studio             |
+| `/documents`  | Protected | Saved documents          |
+| `/profile`    | Protected | User profile             |
 
 ---
 
-## AI Workflow & Engine
+# 🔌 API Reference
+
+All API endpoints use:
 
 ```text
-React form → Express /api/ai/* → aikaEngine.js → structured JSON
-                                        ├→ aiinteractions (history)
-                                        ├→ case.aiAnalysis / risks / actionPath / questions
-                                        ├→ consultations (questions for the professional)
-                                        └→ response → React renders sections
+/api
 ```
 
-**Every result matches this JSON shape**, so the UI can always render it:
+Protected endpoints require:
+
+```http
+Authorization: Bearer <JWT_TOKEN>
+```
+
+## Authentication
+
+| Method | Endpoint             | Description         |
+| ------ | -------------------- | ------------------- |
+| POST   | `/api/auth/register` | Register a new user |
+| POST   | `/api/auth/login`    | Login               |
+| GET    | `/api/auth/me`       | Get current user    |
+
+## Cases
+
+| Method | Endpoint         | Description      |
+| ------ | ---------------- | ---------------- |
+| GET    | `/api/cases`     | Get user's cases |
+| POST   | `/api/cases`     | Create a case    |
+| GET    | `/api/cases/:id` | Get a case       |
+| PUT    | `/api/cases/:id` | Update a case    |
+| DELETE | `/api/cases/:id` | Delete a case    |
+
+## Evidence
+
+| Method | Endpoint            | Description     |
+| ------ | ------------------- | --------------- |
+| GET    | `/api/evidence`     | Get evidence    |
+| POST   | `/api/evidence`     | Add evidence    |
+| PUT    | `/api/evidence/:id` | Update evidence |
+| DELETE | `/api/evidence/:id` | Delete evidence |
+
+## Documents
+
+| Method | Endpoint             | Description     |
+| ------ | -------------------- | --------------- |
+| GET    | `/api/documents`     | Get documents   |
+| POST   | `/api/documents`     | Create document |
+| PUT    | `/api/documents/:id` | Update document |
+| DELETE | `/api/documents/:id` | Delete document |
+
+## AI
+
+| Method | Endpoint                    | Description                |
+| ------ | --------------------------- | -------------------------- |
+| POST   | `/api/ai/analyze`           | Analyze legal situation    |
+| POST   | `/api/ai/explain`           | Explain legal information  |
+| POST   | `/api/ai/simplify`          | Simplify legal text        |
+| POST   | `/api/ai/generate-document` | Generate a document draft  |
+| GET    | `/api/ai/history`           | Get AI interaction history |
+
+## Dashboard
+
+| Method | Endpoint               | Description              |
+| ------ | ---------------------- | ------------------------ |
+| GET    | `/api/dashboard/stats` | Get dashboard statistics |
+
+The complete API structure is implemented around authentication, cases, evidence, documents, AI operations, and dashboard statistics.
+
+---
+
+# 🧪 Example AI Request
+
+Example request:
+
+```http
+POST /api/ai/analyze
+```
+
+Request body:
 
 ```json
 {
-  "summary": "...",
-  "keyIssues": ["..."],
-  "possibleRisks": ["..."],
-  "actionPath": [{ "title": "...", "description": "..." }],
-  "questionsForProfessional": ["..."],
-  "missingInformation": ["..."],
-  "disclaimer": "AIKA AI provides general legal information and organizational assistance. It is not a substitute for advice from a qualified legal professional.",
-  "category": "Housing",
+  "situation": "My landlord has not returned my security deposit after I moved out.",
   "jurisdiction": "India"
 }
 ```
 
-### How the inbuilt engine works
+The response contains structured information such as:
 
-1. **Classification** — the situation text is scored against keyword sets for six themes: **Housing, Employment, Family, Consumer, Civil, General** (e.g. `deposit, landlord, rent, lease, eviction → Housing`).
-2. **Composition** — the winning theme supplies templates for key issues, risks, ActionPath steps, and professional questions, combined with the selected jurisdiction.
-3. **Guarantees** — output is always structured JSON (never free-form), and the engine **never fabricates statutes, sections, case names, or citations**.
-4. **Simplifier** — recognized legal terms map to plain-language meanings; unrecognized clauses still get a generic structured breakdown.
-5. **Drafts** — five document types rendered from editable templates, always stamped `DRAFT — review with a qualified professional`.
-6. **Provider tag** — API responses carry `provider: "aika-engine"` to make the inbuilt source explicit.
-
----
-
-## Responsible AI
-
-- Never claims to be a lawyer or guarantees outcomes
-- Never invents laws, cases, or citations
-- Every response carries the disclaimer: *"AIKA AI provides general legal information and organizational assistance. It is not a substitute for advice from a qualified legal professional."*
-- The engine is deterministic and auditable — same input, same safe output
-- No user data is sent to any external AI service
-
----
-
-## Security
-
-- **bcrypt** password hashing (cost 10); password field is stripped by `toJSON`
-- **Email validation** — format regex + lowercase/trim normalization on the server, duplicate check + unique index
-- **Brute-force guard** — 8 failed logins per email+IP in 15 minutes → `429` (in-memory)
-- **No account enumeration** — identical `401 Invalid email or password` for unknown email vs wrong password
-- **JWT authentication** (7-day expiry) via `protect` middleware on every private route
-- **Ownership checks** — every case/evidence/document/AI query is scoped to `req.user._id`; cross-user access returns `404`
-- **helmet** security headers, `x-powered-by` disabled
-- **CORS allowlist** — only `CLIENT_URL`, `localhost:5173`, `localhost:5174`
-- **1 MB JSON body limit**
-- **Secrets in `.env`** — git-ignored (`.env`, `.env.*` except `.env.example`)
-- **Input validation** — required fields, enum checks, ObjectId format checks (`400`), consistent error envelope
-- **Centralized error handler** — controlled `404` + `500` responses, no stack traces leaked
+```json
+{
+  "summary": "...",
+  "keyIssues": [
+    "..."
+  ],
+  "possibleRisks": [
+    "..."
+  ],
+  "actionPath": [
+    {
+      "title": "...",
+      "description": "..."
+    }
+  ],
+  "questionsForProfessional": [
+    "..."
+  ],
+  "missingInformation": [
+    "..."
+  ],
+  "category": "Housing",
+  "jurisdiction": "India",
+  "disclaimer": "AIKA AI provides general legal information and organizational assistance. It is not a substitute for advice from a qualified legal professional."
+}
+```
 
 ---
 
-## Verification & Testing
+# 🔒 Security
 
-All of the following were executed against the live stack (MongoDB + Express + Vite) and passed:
+ĀIKĀ AI implements several security mechanisms:
 
-### API journey
-- ✅ Register → login → authenticated `/me`
-- ✅ Duplicate email → `409`, bad login → `401`, weak password → `400`
-- ✅ Case create → read → update → delete → search/filter
-- ✅ AI analyze / explain / simplify / generate-document → correct structured output (`provider: aika-engine`)
-- ✅ Evidence + document CRUD scoped to the logged-in user
-- ✅ AI history + dashboard stats return real database numbers
-- ✅ Unknown route → `404`; malformed ObjectId → `400`
-- ✅ **Cross-user isolation:** user B requesting user A's case → `404` (no data leak)
-- ✅ Missing/invalid token → `401` on all protected routes
+* bcrypt password hashing
+* JWT authentication
+* Protected API routes
+* User ownership checks
+* Email normalization and validation
+* Duplicate email prevention
+* Login brute-force protection
+* Helmet security headers
+* CORS allowlist
+* Request body size limitation
+* Environment-based secrets
+* Input validation
+* Centralized error handling
+* Cross-user data isolation
 
-### Authentication hardening
-- ✅ Register/login with real personal emails (`@gmail.com`, `@outlook.com`) succeeds
-- ✅ Case-insensitive email login works (`Student.2026@Outlook.com` = `student.2026@outlook.com`)
-- ✅ 8 wrong passwords → `401`, 9th attempt → `429` lockout
-- ✅ UI validation: mismatched passwords, weak password, invalid email all blocked client-side with inline alerts
+Every private resource is scoped to the authenticated user to prevent unauthorized access.
+
+---
+
+# 🛡️ Responsible AI
+
+ĀIKĀ AI is designed as an **assistive legal-information and organization tool**.
+
+The system:
+
+* Does not claim to be a lawyer.
+* Does not guarantee legal outcomes.
+* Does not intentionally fabricate laws, statutes, cases, or citations.
+* Provides a disclaimer with generated legal-information responses.
+* Uses a deterministic and auditable rule-based engine.
+* Does not send user data to an external AI service.
+
+Users should consult a qualified legal professional for advice regarding their specific legal circumstances.
+
+---
+
+# 🧪 Testing & Verification
+
+The application has been tested across the major application workflows.
+
+### Authentication
+
+* Registration
+* Login
+* Duplicate email handling
+* Invalid credentials
+* Weak password validation
+* JWT authentication
+* Protected routes
+* Login rate limiting
+
+### Case Management
+
+* Create case
+* Read case
+* Update case
+* Delete case
+* Search cases
+* Filter cases
+
+### AI Features
+
+* AI analysis
+* Legal explanation
+* Legal simplification
+* Document generation
+* AI history
+
+### Security
+
+* Invalid token handling
+* Missing token handling
+* Cross-user isolation
+* Ownership validation
+* Invalid ObjectId handling
 
 ### Frontend
-- ✅ `npm run build` — production bundle builds cleanly (≈409 kB JS, ≈30 kB gzip)
-- ✅ Protected routes redirect when logged out; auto-login after register/login
-- ✅ Landing, login, dashboard, cases, case detail, analyzer, simplifier, drafts, documents, profile all render with live data
+
+* Production build
+* Protected route redirection
+* Dashboard rendering
+* Case management
+* AI Analyzer
+* Legal Simplifier
+* Draft Studio
+* Documents
+* Profile
+
+The documented verification covers the full API journey and frontend application flow.
 
 ---
 
-## Documentation & Deliverables
+# ⚠️ Limitations
 
-| Item | Location | Status |
-|---|---|---|
-| Lab report (college 26-section format) | `document.md` | Title page, bonafide certificate, acknowledgement, abstract, table of contents written — **chapters 1–8 to be expanded** |
-| Report screenshots | `docs/screenshots/` | `01-landing.png`, `02-login.png`, `03-simplifier.png`, `04-cases.png` captured — **dashboard, case page, analyzer, drafts, documents still to capture** |
-| College report template | `MERN STACK LAB REPORT.docx` | source of the required format |
-| Demo video | `Lexora_AI.mp4` | ~2 MB screen recording |
-| README | `README.md` | this file — full current-state reference |
+Current limitations include:
 
----
-
-## Limitations
-
-- The inbuilt engine returns general, template-based legal information — by design it **never** fabricates legal citations, so it won't quote specific statutes
-- Document drafts are structured templates; always review with a qualified professional
-- No file upload/parsing (PDF/DOCX) — analysis is text-based
-- Rate-limit counters are in-memory (reset on backend restart); a production deployment would use Redis or a database
-- Email is validated but not verified (no confirmation emails sent)
+* AI responses are generated using template-based rule logic.
+* The system does not provide specific legal citations.
+* Generated documents require professional review.
+* PDF/DOCX document upload and parsing are not currently supported.
+* Login rate-limit counters are stored in memory.
+* Email addresses are validated but not email-verified.
 
 ---
 
-## Future Enhancements
+# 🚀 Future Enhancements
 
-- PDF/DOCX text extraction for uploaded documents
-- Email verification + password reset flows
-- Multi-language explanations
-- Two-factor authentication
-- Redis-backed rate limiting for horizontal scaling
-- Role-based access for legal-aid organizations
-- Case timeline visualization and exportable consultation packs
-#   A I K A - A I  
- 
+Planned improvements include:
+
+* PDF and DOCX document extraction
+* Email verification
+* Password reset
+* Multi-language legal explanations
+* Two-factor authentication
+* Redis-based rate limiting
+* Role-based access for legal-aid organizations
+* Case timeline visualization
+* Exportable consultation packages
+
+---
+
+# 📸 Screenshots
+
+Add project screenshots inside:
+
+```text
+docs/screenshots/
+```
+
+Suggested screenshots:
+
+```text
+01-landing.png
+02-login.png
+03-dashboard.png
+04-cases.png
+05-case-detail.png
+06-ai-analyzer.png
+07-simplifier.png
+08-draft-studio.png
+09-documents.png
+```
+
+Then display them in this section:
+
+```markdown
+## 📸 Screenshots
+
+### Landing Page
+![Landing Page](docs/screenshots/01-landing.png)
+
+### Dashboard
+![Dashboard](docs/screenshots/03-dashboard.png)
+
+### AI Analyzer
+![AI Analyzer](docs/screenshots/06-ai-analyzer.png)
+
+### Legal Simplifier
+![Legal Simplifier](docs/screenshots/07-simplifier.png)
+```
+
+---
+
+# 📄 Documentation
+
+Project documentation includes:
+
+* Project report
+* System architecture
+* Database design
+* API documentation
+* Screenshots
+* Demo video
+* Installation instructions
+
+---
+
+# ⚖️ Disclaimer
+
+ĀIKĀ AI is intended for **general legal information, organization, and preparation purposes only**.
+
+It does not provide legal advice, establish an attorney-client relationship, or guarantee any legal outcome.
+
+Always consult a qualified legal professional for advice concerning your specific situation.
+
+---
+
+# 👩‍💻 Author
+
+**Rethika S**
+
+Computer Science Engineering Student
+Full Stack Development | AI | Web Technologies
+
+---
+
+# 📜 License
+
+This project is developed for **academic, learning, and demonstration purposes**.
+
+If you plan to use, distribute, or deploy the project commercially, add an appropriate open-source or proprietary license.
+
+---
+
+## ⭐ ĀIKĀ AI
+
+> **Understand the law. Know your options. Take the next step.**
