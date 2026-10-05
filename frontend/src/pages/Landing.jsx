@@ -1,6 +1,6 @@
 /**
  * @component Landing
- * @description Accessible and memoized component for Lexora AI.
+ * @description Accessible and memoized component for AIKA AI.
  */
 import { ArrowRight, CheckCircle2, FileText, Globe2, ShieldCheck, Sparkles, Scale } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -38,8 +38,8 @@ export default function Landing({ user }) {
     <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 relative z-10">
       <Logo />
       <div className="flex items-center gap-4">
-        <Link className="hidden text-sm font-medium md:block text-gray-600 hover:text-ink transition-colors" to="/auth">Sign in</Link>
-        <Link className="btn-primary" to={user ? "/app" : "/auth"}>{user ? "Open workspace" : "Start with LEXORA"} <ArrowRight size={16} /></Link>
+        <Link className="hidden text-sm font-medium md:block text-gray-600 hover:text-ink transition-colors" to="/login">Sign in</Link>
+        <Link className="btn-primary" to={user ? "/dashboard" : "/login"}>{user ? "Open workspace" : "Start with AIKA"} <ArrowRight size={16} /></Link>
       </div>
     </nav>
 
@@ -55,10 +55,10 @@ export default function Landing({ user }) {
           </h1>
         </motion.div>
         <motion.p variants={fadeInUp} className="mt-7 max-w-2xl text-lg leading-8 text-gray-600 font-light">
-          LEXORA AI helps you understand legal situations, organize critical evidence, prepare documents, and identify actionable next steps — all in clear, accessible language.
+          AIKA AI helps you understand legal situations, organize critical evidence, prepare documents, and identify actionable next steps — all in clear, accessible language.
         </motion.p>
         <motion.div variants={fadeInUp} className="mt-10 flex flex-wrap gap-4">
-          <Link className="btn-primary text-base px-8 py-4 shadow-lg" to={user ? "/app" : "/auth"}>
+          <Link className="btn-primary text-base px-8 py-4 shadow-lg" to={user ? "/dashboard" : "/login"}>
             Analyze Your Situation <ArrowRight size={18} />
           </Link>
           <a href="#features" className="btn-secondary text-base px-8 py-4">Explore Platform</a>

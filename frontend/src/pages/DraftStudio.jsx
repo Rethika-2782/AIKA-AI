@@ -1,14 +1,14 @@
 /**
  * @component DraftStudio
- * @description AI-powered document drafting workspace for Lexora AI.
+ * @description AI-powered document drafting workspace for AIKA AI.
  * Generates editable legal document drafts based on case context and user instructions.
  * Fully accessible with ARIA labels, form semantics, and keyboard support.
  */
 import { useEffect, useState, useCallback, memo } from "react";
 import { Copy, Download, FileText, Save, Sparkles } from "lucide-react";
-import { api } from "../services/api";
+import { generateDocument, getCases, createDocument } from "../services/api";
 
-const types = ["Formal Request", "Complaint Draft", "Response Draft", "Incident Summary", "Consultation Summary", "Custom Draft"];
+const types = ["Complaint Draft", "Request Letter", "Response Letter", "Evidence Checklist", "Professional Consultation Summary", "Custom Draft"];
 
 /**
  * DraftStudio - document generation workspace.
@@ -23,28 +23,26 @@ function DraftStudio({ user }) {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState("");
 
-  useEffect(() => { api.listCases().then(setCases).catch(() => {}) }, []);
-
-  const selected = cases.find(c => c._id === caseId);
+  useEffect(() => { getCases().then(setCases).catch(() => {}) }, []);
 
   /** Generates a document draft using AI based on case and instructions */
   const generate = useCallback(async () => {
     setLoading(true);
     setSaved("");
     try {
-      const result = await api.generateDocument({ type, caseInfo: selected || { jurisdiction: user.jurisdiction }, instructions });
+      const result = await generateDocument({ type, caseId: caseId || undefined, instructions });
       setDraft(result);
     } catch(e) {
       setSaved(e.message);
     } finally {
       setLoading(false);
     }
-  }, [type, selected, user.jurisdiction, instructions]);
+  }, [type, caseId, instructions]);
 
   /** Saves the current draft to persistent storage */
   const save = useCallback(async () => {
     if (!draft) return;
-    await api.createDocument({ caseId: caseId || null, type, title: draft.title, content: draft.content });
+    await createDocument({ caseId: caseId || null, type, title: draft.title, content: draft.content });
     setSaved("Draft saved successfully.");
   }, [draft, caseId, type]);
 
@@ -130,6 +128,7 @@ function DraftStudio({ user }) {
         <section className="card min-h-[500px] p-6" aria-label="Document editor">
           {draft ? (
             <>
+              <div className="mb-3 inline-flex items-center rounded-full bg-wine/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-wine">AI-Generated Draft</div>
               <div>
                 <label htmlFor="draft-title" className="block text-sm font-medium text-gray-700 mb-1">Document Title</label>
                 <input

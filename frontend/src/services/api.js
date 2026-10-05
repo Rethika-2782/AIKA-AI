@@ -1,100 +1,64 @@
-// Mock API Client using LocalStorage
+import axios from "axios";
 
-const delay = (ms) => new Promise(res => setTimeout(res, ms));
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-const mockAI = {
-  analyze: (situation, jurisdiction) => ({
-    issueTitle: "Sample Legal Dispute",
-    category: "General Law",
-    jurisdiction: jurisdiction || "India",
-    summary: "Based on your description, this appears to be a standard legal dispute. This is a mock analysis generated for testing purposes because the app is running in frontend-only mode.",
-    keyFacts: ["This is a mocked key fact 1.", "This is a mocked key fact 2.", "The situation involves: " + situation.substring(0, 30) + "..."],
-    missingInformation: ["Exact dates of the incident.", "Any written communication between parties."],
-    possibleLegalAreas: ["Breach of Contract", "Civil Dispute"],
-    evidenceChecklist: ["Relevant Contracts", "Bank Statements", "Emails"],
-    actionPlan: [
-      { title: "Gather Evidence", description: "Collect all relevant documents.", status: "Not started" },
-      { title: "Send Formal Notice", description: "Draft a formal communication.", status: "Not started" }
-    ],
-    questionsForProfessional: ["What is the statute of limitations?", "What are the typical legal costs?"],
-    riskSignals: ["The opposing party might dispute the timeline."],
-    uncertainties: ["Missing documentation could weaken the position."],
-    disclaimer: "AI-generated dummy data for testing purposes."
-  })
-};
+export const http = axios.create({ baseURL });
 
-function getStorage(key, defaultVal = []) {
-  try { return JSON.parse(localStorage.getItem(key)) || defaultVal; } 
-  catch { return defaultVal; }
-}
-function setStorage(key, val) {
-  localStorage.setItem(key, JSON.stringify(val));
-}
+http.interceptors.request.use((config) => {
+  const token = localStorage.getItem("AIKA_token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-export const api = {
-  register: async (body) => {
-    await delay(500);
-    const user = { id: Date.now().toString(), name: body.name, email: body.email, jurisdiction: body.jurisdiction };
-    localStorage.setItem("lexora_user", JSON.stringify(user));
-    return { token: "mock_token_123", user };
-  },
-  login: async (body) => {
-    await delay(500);
-    const user = { id: "demo", name: body.email.split("@")[0], email: body.email, jurisdiction: body.jurisdiction || "India" };
-    localStorage.setItem("lexora_user", JSON.stringify(user));
-    return { token: "mock_token_123", user };
-  },
-  me: async () => {
-    await delay(200);
-    const user = localStorage.getItem("lexora_user");
-    if(!user) throw new Error("Not logged in");
-    return JSON.parse(user);
-  },
-  
-  analyze: async (body) => {
-    await delay(1500);
-    return mockAI.analyze(body.situation, body.jurisdiction);
-  },
-  explain: async () => {
-    await delay(1000);
-    return { simpleExplanation: "Mock explanation." };
-  },
-  generateDocument: async () => {
-    await delay(1500);
-    return { title: "Mock Draft", content: "This is a frontend-only mock draft." };
-  },
-  
-  listCases: async () => {
-    await delay(300);
-    return getStorage("lexora_cases", []);
-  },
-  getCase: async (id) => {
-    await delay(300);
-    const cases = getStorage("lexora_cases", []);
-    const c = cases.find(x => x._id === id);
-    if(!c) throw new Error("Case not found");
-    return c;
-  },
-  createCase: async (body) => {
-    await delay(500);
-    const newCase = { ...body, _id: Date.now().toString(), evidence: [], createdAt: new Date().toISOString() };
-    const cases = getStorage("lexora_cases", []);
-    setStorage("lexora_cases", [...cases, newCase]);
-    return newCase;
-  },
-  updateCase: async (id, body) => {
-    await delay(300);
-    const cases = getStorage("lexora_cases", []);
-    const idx = cases.findIndex(x => x._id === id);
-    if(idx === -1) throw new Error("Case not found");
-    cases[idx] = { ...cases[idx], ...body };
-    setStorage("lexora_cases", cases);
-    return cases[idx];
-  },
-  deleteCase: async (id) => {
-    await delay(300);
-    const cases = getStorage("lexora_cases", []);
-    setStorage("lexora_cases", cases.filter(x => x._id !== id));
-    return { success: true };
+http.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    const message = err.response?.data?.message || err.message || "Something went wrong";
+    return Promise.reject(new Error(message));
   }
+);
+
+export const loginUser = (body) => http.post("/auth/login", body).then((r) => r.data);
+export const registerUser = (body) => http.post("/auth/register", body).then((r) => r.data);
+export const getCurrentUser = () => http.get("/auth/me").then((r) => r.data);
+
+export const getCases = (params) => http.get("/cases", { params }).then((r) => r.data.cases);
+export const createCase = (body) => http.post("/cases", body).then((r) => r.data.case);
+export const getCase = (id) => http.get(`/cases/${id}`).then((r) => r.data.case);
+export const updateCase = (id, body) => http.put(`/cases/${id}`, body).then((r) => r.data.case);
+export const deleteCase = (id) => http.delete(`/cases/${id}`).then((r) => r.data);
+
+export const getEvidence = (params) => http.get("/evidence", { params }).then((r) => r.data.evidence);
+export const createEvidence = (body) => http.post("/evidence", body).then((r) => r.data.evidenceItem);
+export const updateEvidence = (id, body) => http.put(`/evidence/${id}`, body).then((r) => r.data.evidenceItem);
+export const deleteEvidence = (id) => http.delete(`/evidence/${id}`).then((r) => r.data);
+
+export const getDocuments = (params) => http.get("/documents", { params }).then((r) => r.data.documents);
+export const createDocument = (body) => http.post("/documents", body).then((r) => r.data.document);
+export const updateDocument = (id, body) => http.put(`/documents/${id}`, body).then((r) => r.data.document);
+export const deleteDocument = (id) => http.delete(`/documents/${id}`).then((r) => r.data);
+
+export const analyzeSituation = (body) => http.post("/ai/analyze", body).then((r) => r.data);
+export const explainText = (body) => http.post("/ai/explain", body).then((r) => r.data.explanation);
+export const simplifyClause = (body) => http.post("/ai/simplify", body).then((r) => r.data.simplification);
+export const generateDocument = (body) => http.post("/ai/generate-document", body).then((r) => r.data.document);
+export const getAIHistory = (params) => http.get("/ai/history", { params }).then((r) => r.data.history);
+
+export const getDashboardStats = () => http.get("/dashboard/stats").then((r) => r.data);
+
+// Compatibility layer for older components
+export const api = {
+  login: loginUser,
+  register: registerUser,
+  me: () => getCurrentUser().then((d) => d),
+  listCases: () => getCases(),
+  getCase,
+  createCase,
+  updateCase,
+  deleteCase,
+  analyze: analyzeSituation,
+  explain: (body) => http.post("/ai/explain", body).then((r) => r.data.explanation || r.data),
+  simplify: (body) => http.post("/ai/simplify", body).then((r) => r.data.simplification || r.data),
+  generateDocument,
+  createDocument
 };

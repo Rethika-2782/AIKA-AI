@@ -11,7 +11,7 @@ export default {
         warm: "#E8E1D6"
       },
       fontFamily: {
-        display: ["Georgia", "serif"],
+        display: ["'Playfair Display'", "Georgia", "serif"],
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
       }
     }

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { BriefcaseBusiness, FileText, Home, LogOut, Menu, MessageSquareText, Scale, X } from "lucide-react";
+import { BriefcaseBusiness, FileText, Home, LogOut, Menu, MessageSquareText, Scale, User, X } from "lucide-react";
 import { useState } from "react";
 import Logo from "../components/Logo";
 
@@ -7,10 +7,13 @@ export default function Layout({ user, onLogout, children }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const items = [
-    ["/app", "Dashboard", Home],
+    ["/dashboard", "Dashboard", Home],
     ["/cases", "My Cases", BriefcaseBusiness],
-    ["/simplifier", "Legal Simplifier", MessageSquareText],
-    ["/drafts", "Draft Studio", FileText]
+    ["/ai", "AI Analyzer", MessageSquareText],
+    ["/simplifier", "Legal Simplifier", Scale],
+    ["/drafts", "Draft Studio", FileText],
+    ["/documents", "Documents", FileText],
+    ["/profile", "Profile", User]
   ];
   const nav = (to) => { setOpen(false); navigate(to); };
   return <div className="min-h-screen bg-transparent text-gray-900">

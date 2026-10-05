@@ -1,12 +1,12 @@
 /**
  * @component Simplifier
- * @description Plain-language legal text explainer for Lexora AI.
+ * @description Plain-language legal text explainer for AIKA AI.
  * Paste any legal clause, notice, or contract section and receive a structured,
- * accessible plain-English breakdown powered by Gemini AI.
+ * accessible plain-English breakdown produced by the inbuilt AIKA engine.
  */
 import { useState, useCallback, memo } from "react";
 import { Sparkles } from "lucide-react";
-import { api } from "../services/api";
+import { simplifyClause } from "../services/api";
 import LoadingAI from "../components/LoadingAI";
 
 /**
@@ -25,7 +25,8 @@ function Simplifier({ user }) {
     setLoading(true);
     setError("");
     try {
-      setData(await api.explain({ text, jurisdiction: user.jurisdiction }));
+      const data = await simplifyClause({ text, jurisdiction: user.jurisdiction });
+      setData(data);
     } catch(e) {
       setError(e.message);
     } finally {
@@ -34,12 +35,11 @@ function Simplifier({ user }) {
   }, [text, user.jurisdiction]);
 
   const resultSections = data ? [
-    ["Simple Explanation", data.simpleExplanation],
-    ["Important Points", (data.importantPoints || []).map(x => "• " + x).join("\n")],
-    ["Parties Mentioned", (data.partiesMentioned || []).join(", ") || "None identified"],
-    ["Obligations", (data.obligations || []).map(x => "• " + x).join("\n")],
-    ["Key Dates", (data.dates || []).map(x => "• " + x).join("\n") || "None identified"],
-    ["Questions to Consider", (data.questionsToConsider || []).map(x => "• " + x).join("\n")]
+    ["Plain-language explanation", data.plainExplanation],
+    ["Important terms", (data.importantTerms || []).join(", ") || "None identified"],
+    ["Practical meaning", data.practicalMeaning],
+    ["Questions to ask a professional", (data.questionsToAskProfessional || []).map((x) => "• " + x).join("\n")],
+    ["Disclaimer", data.disclaimer]
   ] : [];
 
   return (
@@ -48,7 +48,7 @@ function Simplifier({ user }) {
         <div className="text-sm text-black/45" aria-hidden="true">Plain-language mode</div>
         <h1 className="font-display text-4xl">Legal Simplifier</h1>
         <p className="mt-2 max-w-2xl text-black/55">
-          Paste a clause, notice, contract section or official letter and ask LEXORA to explain it clearly.
+          Paste a clause, notice, contract section or official letter and ask AIKA to explain it clearly.
         </p>
       </div>
 

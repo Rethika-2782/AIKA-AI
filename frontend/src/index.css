@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,17 +8,20 @@
   :root {
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
     color: #151515;
-    background: radial-gradient(circle at top left, #FFFFFF, #F7F4EE);
+    background: radial-gradient(1200px 600px at 10% -10%, #FFFFFF, transparent),
+                radial-gradient(900px 500px at 110% 10%, #F1E7DB, transparent),
+                linear-gradient(180deg, #FBF8F2, #F3EDE3);
     min-height: 100vh;
   }
-  
+
   body {
     margin: 0;
     min-width: 320px;
     background-color: transparent;
     color: #151515;
+    -webkit-font-smoothing: antialiased;
   }
-  
+
   * { box-sizing: border-box; }
   button, input, textarea, select { font: inherit; color: #151515; }
   ::selection { background: #B99A5B; color: #151515; }
@@ -24,7 +29,7 @@
 
 @layer components {
   .card { 
-    @apply rounded-3xl border border-black/5 bg-white/60 shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-black/10 hover:bg-white/80 hover:shadow-2xl text-gray-900;
+    @apply rounded-3xl border border-black/5 bg-white/70 shadow-[0_10px_40px_-15px_rgba(21,21,21,0.15)] backdrop-blur-xl transition-all duration-300 hover:border-black/10 hover:bg-white/90 hover:shadow-[0_20px_50px_-20px_rgba(107,38,54,0.25)] text-gray-900;
   }
   
   .btn-primary { 
